@@ -13,7 +13,7 @@ pretrained_models/models-all.7z
 *.exe
 *.mp4
 *__pycache__
-vocal/__pycache__
+vocal/__pycache__/*
 vocal/__pycache__/__init__.cpython-310.pyc
 vocal/__pycache__/cfg.cpython-310.pyc
 vocal/__pycache__/tool.cpython-310.pyc

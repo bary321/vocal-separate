@@ -2,7 +2,7 @@ import locale
 import os
 import sys
 import tensorflow
-web_address = '172.31.0.7:9999'
+web_address = '0.0.0.0:9999'
 LANG = "en" if locale.getdefaultlocale()[0].split('_')[0].lower() != 'zh' else "zh"
 
 

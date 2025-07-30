@@ -10,6 +10,8 @@ from vocal import cfg, tool
 from vocal.cfg import ROOT_DIR
 import subprocess
 from spleeter.separator import Separator
+from flask import send_file
+import shutil
 
 class CustomRequestHandler(WSGIHandler):
     def log_request(self):
@@ -206,11 +208,99 @@ def api():
 
 
 
-
 @app.route('/checkupdate', methods=['GET', 'POST'])
 def checkupdate():
     return jsonify({'code': 0, "msg": cfg.updatetips})
 
+
+@app.route('/api/vocals', methods=['POST'])
+def api_vocals():
+    """
+    接收音频文件，分离人声，返回vocals.wav，成功后删除缓存和输出目录。
+    """
+    try:
+        audio_file = request.files.get('file')
+        if not audio_file:
+            return jsonify({"code": 1, "msg": "未提供音频文件"}), 400
+
+        noextname, ext = os.path.splitext(audio_file.filename)
+        ext = ext.lower()
+        wav_file = os.path.join(cfg.TMP_DIR, f'{noextname}.wav')
+
+        # 先转为wav
+        if not os.path.exists(wav_file) or os.path.getsize(wav_file) == 0:
+            if ext in ['.mp4', '.mov', '.avi', '.mkv', '.mpeg', '.mp3', '.flac']:
+                video_file = os.path.join(cfg.TMP_DIR, f'{noextname}{ext}')
+                audio_file.save(video_file)
+                params = ["-i", video_file]
+                if ext not in ['.mp3', '.flac']:
+                    params.append('-vn')
+                params.append(wav_file)
+                rs = tool.runffmpeg(params)
+                if rs != 'ok':
+                    return jsonify({"code": 1, "msg": rs}), 400
+            elif ext == '.wav':
+                audio_file.save(wav_file)
+            else:
+                return jsonify({"code": 1, "msg": f"不支持的文件格式 {ext}"}), 400
+
+        # 检查模型
+        model = '2stems'
+        if not os.path.exists(os.path.join(cfg.MODEL_DIR, model, 'model.meta')):
+            return jsonify({"code": 1, "msg": f"模型 {model} 不存在"}), 400
+
+        # 获取音频时长
+        try:
+            p = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', "format=duration", '-of',
+                                "default=noprint_wrappers=1:nokey=1", wav_file], capture_output=True)
+            if p.returncode == 0:
+                sec = float(p.stdout)
+            else:
+                sec = 1800
+        except Exception:
+            sec = 1800
+
+        # 分离
+        separator = Separator(f'spleeter:{model}', multiprocess=False)
+        dirname = os.path.join(cfg.FILES_DIR, noextname)
+        try:
+            separator.separate_to_file(wav_file, destination=dirname, filename_format="{instrument}.{codec}", duration=sec)
+        except Exception as e:
+            return jsonify({"code": 1, "msg": str(e)}), 500
+
+        # 查找vocals.wav
+        vocals_path = os.path.join(dirname, 'vocals.wav')
+        if not os.path.exists(vocals_path):
+            # 清理缓存
+            try:
+                if os.path.exists(wav_file):
+                    os.remove(wav_file)
+                if os.path.exists(dirname):
+                    shutil.rmtree(dirname)
+            except Exception:
+                pass
+            return jsonify({"code": 1, "msg": "未找到分离后的人声文件"}), 500
+
+        # 直接返回文件流
+        response = send_file(vocals_path, as_attachment=True, download_name='vocals.wav')
+
+        # 清理缓存和输出
+        try:
+            if os.path.exists(wav_file):
+                os.remove(wav_file)
+            if os.path.exists(dirname):
+                shutil.rmtree(dirname)
+            # 删除上传的原始视频/音频
+            video_file = os.path.join(cfg.TMP_DIR, f'{noextname}{ext}')
+            if os.path.exists(video_file):
+                os.remove(video_file)
+        except Exception:
+            pass
+
+        return response
+    except Exception as e:
+        app.logger.error(f'[api_vocals]error: {e}')
+        return jsonify({'code': 2, 'msg': '处理失败'}), 500
 
 if __name__ == '__main__':
     http_server = None
