@@ -1,0 +1,33 @@
+---
+description: Git 提交和分支管理规范
+globs: 
+alwaysApply: false
+---
+# Git specification
+
+## Submit specifications
+Git submission record example: [type]: [description]. A specific example, docs: updating the README file.
+The following are the enumeration values of type:
+- Feature: New Features
+- Fix: Fix bugs
+- Docs: Document Annotations
+- Style: Code format (changes that do not affect code execution)
+- Refactor: Refactoring and optimizing (neither adding new features nor fixing bugs)
+- Perf: Performance optimization
+- Test: Add tests
+- Chore: Changes in the construction process or auxiliary tools
+- Revert: rollback
+- Build: Packaging
+
+## Branch management
+- Main/master: The main branch maintains a stable and publishable state
+- Develop: a development branch that includes the latest development features
+- Feature/*: Function branch, used for developing new features
+- Bugfix/*: Fix branch, used to fix bugs
+- Release/*: Release branch, used to prepare for release
+
+## Important principles
+- * * Important * *: Do not automatically submit Git code unless explicitly prompted
+- Ensure that the code passes all tests before submission
+- Keep the submitted information concise and clear, and describe the changes clearly
+- Avoid large submissions and try to break down changes into smaller, relevant submissions

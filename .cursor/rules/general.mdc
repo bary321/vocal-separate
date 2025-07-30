@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# General Project Specifications
+
+## Technology Stack
+- Python 3.10
+- Conda management dependency
+- Using Bash Script
+
+## Code Style
+- Keep the code concise and readable
+- Use meaningful variable and function names
+- Add appropriate comments to explain complex logic
+- Follow the official style guidelines for each language
+
+## Project Structure
+- Maintain clear project structure and adhere to modular principles
+- Related functions should be placed in the same directory
+- Use appropriate directory naming to reflect its contents
+
+## General Development Principles
+- Write testable code
+- Avoid duplicate code (DRY principle)
+- Prioritize the use of existing libraries and tools to avoid reinventing the wheel
+- Consider the maintainability and extensibility of the code
+
+## Rule file description
+This project uses the following rule files:
+- General.mdc: General Specification (this document)
+- Python.mdc: Python Development Specification
+- Document.mdc: Document Specification
+- Git. mdc: Git commit specification
+

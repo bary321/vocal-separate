@@ -1,0 +1,29 @@
+---
+description: 
+globs: *.md
+alwaysApply: false
+---
+# Document specifications
+
+## README.md specification
+- Keep the document structure clear and use appropriate Markdown tags
+- * * Important * *: Ensure that the README includes the following parts:
+- Project Introduction
+- Installation instructions
+- Usage method
+- Contribution Guide (if applicable)
+- License information
+
+## CHANGELOG.md specification
+When requesting an update to CHANGELOG.md, please update in the following format:
+```
+## v1.0.0
+-New feature: Reset device ID
+-Fix bug: fix the issue of device ID reset failure
+```
+
+## Document update principle
+- Keep documents and code updated synchronously
+- Use concise and clear language
+- Provide sufficient examples and explanations
+- Ensure consistent document format
